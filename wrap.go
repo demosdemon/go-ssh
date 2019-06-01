@@ -1,6 +1,7 @@
 package ssh
 
 import (
+	"crypto"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -22,4 +23,12 @@ func ParseAuthorizedKey(in []byte) (out PublicKey, comment string, options []str
 
 func ParsePublicKey(in []byte) (out PublicKey, err error) {
 	return ssh.ParsePublicKey(in)
+}
+
+func NewSignerFromSigner(signer crypto.Signer) (Signer, error) {
+	return ssh.NewSignerFromSigner(signer)
+}
+
+func NewSignerFromKey(key interface{}) (Signer, error) {
+	return ssh.NewSignerFromKey(key)
 }
