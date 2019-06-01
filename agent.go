@@ -5,7 +5,6 @@ import (
 	"net"
 	"path"
 
-	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 
 	"github.com/demosdemon/go-copier"
@@ -47,10 +46,7 @@ func ForwardAgentConnections(l net.Listener, s Session) {
 		go func(conn net.Conn) {
 			defer conn.Close()
 
-			log := s.Logger().WithFields(logrus.Fields{
-				"local_addr":  conn.LocalAddr(),
-				"remote_addr": conn.RemoteAddr(),
-			})
+			log := s.Logger()
 
 			defer log.Trace("ssh agent connection ended")
 
