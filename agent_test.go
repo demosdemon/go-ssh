@@ -215,7 +215,7 @@ func TestForwardAgentConnections(t *testing.T) {
 	}
 
 	ForwardAgentConnections(&fakeListener, &fakeSession)
-	time.Sleep(time.Second)
+	time.Sleep(time.Millisecond)
 	require.Equal(t, len(cases)+1, fakeListener.AcceptCallCount())
 
 	for _, c := range cases {

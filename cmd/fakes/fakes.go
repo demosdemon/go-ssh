@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/iancoleman/strcase"
-	"github.com/maxbrunsfeld/counterfeiter/v6/generator"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"path"
 	"sync"
+
+	"github.com/iancoleman/strcase"
+	"github.com/maxbrunsfeld/counterfeiter/v6/generator"
+	"github.com/sirupsen/logrus"
 )
 
 type Interface struct {
