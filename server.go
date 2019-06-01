@@ -82,11 +82,14 @@ func (srv *Server) Serve(l net.Listener) error {
 	srv.trackListener(l, true)
 	defer srv.trackListener(l, false)
 
+	log := srv.logger()
+
 	for {
 		conn, err := l.Accept()
 		if err != nil {
 			select {
 			case <-srv.getDoneChan():
+				log.WithError(err).Trace("ssh server closed")
 				return ErrServerClosed
 			default:
 			}
@@ -102,12 +105,20 @@ func (srv *Server) Serve(l net.Listener) error {
 					tempDelay = max
 				}
 
+				log.WithError(err).WithField("delay", tempDelay).Trace("ssh temporary error; sleeping")
 				time.Sleep(tempDelay)
 				continue
 			}
 
+			log.WithError(err).Trace("ssh listener fatal error")
 			return err
 		}
+
+		log.WithFields(logrus.Fields{
+			"local_addr":  conn.LocalAddr(),
+			"remote_addr": conn.RemoteAddr(),
+		}).Trace("ssh new connection")
+
 		go srv.handleConn(conn)
 	}
 }
