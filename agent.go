@@ -61,11 +61,8 @@ func ForwardAgentConnections(l net.Listener, s Session) {
 			go ssh.DiscardRequests(reqs)
 
 			var cg copier.Group
-			defer cg.Shutdown(s.Context())
-
 			cg.Add(conn, channel)
 			cg.Add(channel, conn)
-
 			_ = cg.Wait(s.Context())
 		}(conn)
 	}

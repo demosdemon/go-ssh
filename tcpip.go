@@ -1,8 +1,6 @@
 package ssh
 
 import (
-	"context"
-	"io"
 	"net"
 	"strconv"
 	"sync"
@@ -54,7 +52,6 @@ func (h *DirectTcpIpHandler) HandleChannel(ctx Context, srv *Server, conn *ssh.S
 	cg.Add(ch, dconn)
 	cg.Add(dconn, ch)
 	_ = cg.Wait(ctx)
-	cg.Shutdown(context.Background())
 }
 
 type forwardedTCPHandler struct {
@@ -116,23 +113,16 @@ func (h *forwardedTCPHandler) forward(ctx Context, srv *Server, req *ssh.Request
 				}))
 
 				if err != nil {
-					subConn.Close()
+					_ = subConn.Close()
 					return
 				}
 
 				go ssh.DiscardRequests(reqs)
 
-				go func() {
-					defer ch.Close()
-					defer subConn.Close()
-					_, _ = io.Copy(ch, subConn)
-				}()
-
-				go func() {
-					defer ch.Close()
-					defer subConn.Close()
-					_, _ = io.Copy(subConn, ch)
-				}()
+				var cg copier.Group
+				cg.Add(ch, subConn)
+				cg.Add(subConn, ch)
+				_ = cg.Wait(ctx)
 			}()
 		}
 
@@ -157,7 +147,7 @@ func (h *forwardedTCPHandler) cancel(ctx Context, srv *Server, req *ssh.Request)
 	h.Unlock()
 
 	if l != nil {
-		l.Close()
+		_ = l.Close()
 	}
 
 	return true, nil
