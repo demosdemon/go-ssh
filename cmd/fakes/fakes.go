@@ -76,6 +76,8 @@ var interfaces = []Interface{
 func main() {
 	var wg sync.WaitGroup
 
+	cacher := generator.Cache{}
+
 	pwd, err := os.Getwd()
 	if err != nil {
 		logrus.WithError(err).Panic("unable to get current working directory")
@@ -96,6 +98,7 @@ func main() {
 				iface.FakeImplName,
 				iface.DestinationPackageName,
 				pwd,
+				&cacher,
 			)
 
 			if err != nil {
